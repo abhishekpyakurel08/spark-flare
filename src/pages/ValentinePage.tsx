@@ -386,32 +386,32 @@ const ValentinePage: React.FC = () => {
 
       {/* Overlay content */}
       {showMessage && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4">
           {/* Photo */}
-          <div className="animate-fade-in-up mb-6 pointer-events-auto">
-            <div className="w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-valentine-pink animate-pulse-glow shadow-2xl">
+          <div className="animate-fade-in-up mb-8 pointer-events-auto">
+            <div className="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-valentine-rose animate-pulse-glow shadow-[0_0_40px_hsl(var(--valentine-crimson)/0.5)]">
               <img
                 src={valentinePhoto}
-                alt="My Valentine"
-                className="w-full h-full object-cover"
+                alt="My Crush"
+                className="w-full h-full object-cover object-top"
               />
             </div>
           </div>
 
           {/* Title */}
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide text-foreground valentine-text-glow animate-fade-in-up-delay select-none">
+          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide text-foreground valentine-text-glow animate-fade-in-up-delay select-none text-center">
             You Stole My Heart
           </h1>
 
           {/* Subtitle */}
-          <p className="font-body text-lg md:text-2xl text-valentine-rose mt-4 tracking-widest animate-fade-in-up-delay-2 select-none">
+          <p className="font-body text-base md:text-xl text-valentine-rose mt-3 tracking-widest animate-fade-in-up-delay-2 select-none text-center">
             Every time I see you, my world lights up ♡
           </p>
 
           {/* Button */}
           <button
             onClick={handleButtonClick}
-            className="mt-8 px-8 py-3 rounded-full bg-primary text-primary-foreground font-body text-lg tracking-wide
+            className="mt-6 px-8 py-3 rounded-full bg-primary text-primary-foreground font-body text-lg tracking-wide
               shadow-[0_10px_30px_hsl(var(--valentine-pink)/0.4),0_0_20px_hsl(var(--valentine-rose)/0.3)]
               hover:shadow-[0_15px_40px_hsl(var(--valentine-pink)/0.6),0_0_30px_hsl(var(--valentine-rose)/0.5)]
               hover:-translate-y-1 hover:scale-105
