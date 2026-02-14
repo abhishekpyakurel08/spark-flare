@@ -2,9 +2,17 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import valentinePhoto from '@/assets/valentine-photo.png';
 
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady: () => void;
+    YT: any;
+  }
+}
+
 const ValentinePage: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const [showMessage, setShowMessage] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const mousePosRef = useRef({ x: 0, y: 0 });
 
   // Store effect creators in refs so the button can access them
@@ -23,6 +31,49 @@ const ValentinePage: React.FC = () => {
     };
   }, []);
 
+  const startMusic = () => {
+    setHasInteracted(true);
+  };
+
+  useEffect(() => {
+    if (hasInteracted) {
+      // Load YouTube IFrame API
+      if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      }
+
+      window.onYouTubeIframeAPIReady = () => {
+        new window.YT.Player('youtube-player', {
+          height: '100',
+          width: '100',
+          videoId: 'Cb6wuzOurPc',
+          playerVars: {
+            'autoplay': 1,
+            'loop': 1,
+            'playlist': 'Cb6wuzOurPc',
+            'controls': 0,
+            'modestbranding': 1,
+            'rel': 0,
+          },
+          events: {
+            'onReady': (event: any) => {
+              event.target.setVolume(30);
+              event.target.playVideo();
+            }
+          }
+        });
+      };
+
+      // If already loaded
+      if (window.YT && window.YT.Player) {
+        window.onYouTubeIframeAPIReady();
+      }
+    }
+  }, [hasInteracted]);
+
   useEffect(() => {
     if (!mountRef.current) return;
 
@@ -40,15 +91,15 @@ const ValentinePage: React.FC = () => {
     mountRef.current.appendChild(renderer.domElement);
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xff69b4, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffb6c1, 0.5); // More pink ambient
     scene.add(ambientLight);
-    const pointLight1 = new THREE.PointLight(0xff1493, 2, 20);
+    const pointLight1 = new THREE.PointLight(0xff1493, 2, 25);
     pointLight1.position.set(5, 5, 5);
     scene.add(pointLight1);
-    const pointLight2 = new THREE.PointLight(0xff69b4, 1.5, 20);
+    const pointLight2 = new THREE.PointLight(0xff69b4, 1.5, 25);
     pointLight2.position.set(-5, -5, 3);
     scene.add(pointLight2);
-    const spotLight = new THREE.SpotLight(0xffc0cb, 1);
+    const spotLight = new THREE.SpotLight(0xffc0cb, 1.5);
     spotLight.position.set(0, 10, 10);
     spotLight.castShadow = true;
     scene.add(spotLight);
@@ -64,44 +115,51 @@ const ValentinePage: React.FC = () => {
     heartShape.bezierCurveTo(x + 1.6, y + 0.7, x + 1.6, y, x + 1.0, y);
     heartShape.bezierCurveTo(x + 0.7, y, x + 0.5, y + 0.5, x + 0.5, y + 0.5);
 
-    // Floating hearts
+    // Floating hearts - INCREASED COUNT AND PULSING ANIMATION
     const hearts: THREE.Mesh[] = [];
-    const heartMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0xff1493, metalness: 0.2, roughness: 0.3,
-      transparent: true, opacity: 0.9, side: THREE.DoubleSide,
-      emissive: 0xff69b4, emissiveIntensity: 0.3,
-    });
+    const heartColors = [0xff1493, 0xff69b4, 0xff0066, 0xffb6c1, 0xffc0cb]; // All pink variants
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) { // Even more hearts
       const geometry = new THREE.ExtrudeGeometry(heartShape, {
         depth: 0.3, bevelEnabled: true, bevelSegments: 5, steps: 2, bevelSize: 0.1, bevelThickness: 0.1,
       });
       geometry.center();
-      const heart = new THREE.Mesh(geometry, heartMaterial.clone());
-      heart.scale.set(0.5 + Math.random() * 0.5, 0.5 + Math.random() * 0.5, 0.5);
-      heart.position.set((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
+      const hColor = heartColors[Math.floor(Math.random() * heartColors.length)];
+      const heartMaterial = new THREE.MeshPhysicalMaterial({
+        color: hColor, metalness: 0.2, roughness: 0.3,
+        transparent: true, opacity: 0.7, side: THREE.DoubleSide,
+        emissive: hColor, emissiveIntensity: 0.4,
+      });
+      const heart = new THREE.Mesh(geometry, heartMaterial);
+      const baseScale = 0.3 + Math.random() * 0.5;
+      heart.scale.set(baseScale, baseScale, baseScale);
+      heart.position.set((Math.random() - 0.5) * 25, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 12);
       heart.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
-      heart.userData.rotationSpeed = { x: (Math.random() - 0.5) * 0.02, y: (Math.random() - 0.5) * 0.02, z: (Math.random() - 0.5) * 0.02 };
-      heart.userData.floatSpeed = Math.random() * 0.5 + 0.5;
-      heart.userData.floatOffset = Math.random() * Math.PI * 2;
+      heart.userData = {
+        rotationSpeed: { x: (Math.random() - 0.5) * 0.02, y: (Math.random() - 0.5) * 0.02, z: (Math.random() - 0.5) * 0.02 },
+        floatSpeed: Math.random() * 0.5 + 0.5,
+        floatOffset: Math.random() * Math.PI * 2,
+        baseScale: baseScale,
+        pulseSpeed: 2 + Math.random() * 2
+      };
       scene.add(heart);
       hearts.push(heart);
     }
 
     // Particles
-    const particleCount = 1500;
+    const particleCount = 2000;
     const particlesGeometry = new THREE.BufferGeometry();
     const particlePositions = new Float32Array(particleCount * 3);
     const particleVelocities: { x: number; y: number; z: number }[] = [];
     for (let i = 0; i < particleCount; i++) {
-      particlePositions[i * 3] = (Math.random() - 0.5) * 30;
-      particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
-      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      particlePositions[i * 3] = (Math.random() - 0.5) * 40;
+      particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 40;
       particleVelocities.push({ x: (Math.random() - 0.5) * 0.02, y: Math.random() * 0.01 + 0.005, z: (Math.random() - 0.5) * 0.02 });
     }
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
     const particlesMaterial = new THREE.PointsMaterial({
-      color: 0xff69b4, size: 0.08, transparent: true, opacity: 0.6,
+      color: 0xff69b4, size: 0.06, transparent: true, opacity: 0.6,
       blending: THREE.AdditiveBlending, sizeAttenuation: true,
     });
     const particles = new THREE.Points(particlesGeometry, particlesMaterial);
@@ -113,12 +171,12 @@ const ValentinePage: React.FC = () => {
     });
     centralHeartGeo.center();
     const centralHeartMat = new THREE.MeshPhysicalMaterial({
-      color: 0xff0066, metalness: 0.3, roughness: 0.2, transparent: true, opacity: 0.95,
-      side: THREE.DoubleSide, emissive: 0xff1493, emissiveIntensity: 0.5,
+      color: 0xff1493, metalness: 0.3, roughness: 0.2, transparent: true, opacity: 0.95,
+      side: THREE.DoubleSide, emissive: 0xff0066, emissiveIntensity: 0.6,
       clearcoat: 1, clearcoatRoughness: 0.1,
     });
     const centralHeart = new THREE.Mesh(centralHeartGeo, centralHeartMat);
-    centralHeart.scale.set(1.2, 1.2, 1.2);
+    centralHeart.scale.set(1.4, 1.4, 1.4);
     centralHeart.castShadow = true;
     scene.add(centralHeart);
 
@@ -135,7 +193,7 @@ const ValentinePage: React.FC = () => {
     const createConfetti = (position: THREE.Vector3, count = 50) => {
       for (let i = 0; i < count; i++) {
         const geometry = new THREE.BoxGeometry(0.1, 0.2, 0.02);
-        const colors = [0xff1493, 0xff69b4, 0xffc0cb, 0xff0066, 0xffb6c1, 0xffd700, 0xff4500];
+        const colors = [0xff1493, 0xff69b4, 0xffc0cb, 0xff0066, 0xffb6c1, 0xffd700];
         const material = new THREE.MeshPhongMaterial({
           color: colors[Math.floor(Math.random() * colors.length)],
           shininess: 100, emissive: colors[Math.floor(Math.random() * colors.length)], emissiveIntensity: 0.3,
@@ -153,7 +211,7 @@ const ValentinePage: React.FC = () => {
     };
 
     const createFirework = (position: THREE.Vector3) => {
-      const fwCount = 100;
+      const fwCount = 120;
       const geometry = new THREE.BufferGeometry();
       const positions = new Float32Array(fwCount * 3);
       const colors = new Float32Array(fwCount * 3);
@@ -171,7 +229,7 @@ const ValentinePage: React.FC = () => {
       }
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      const material = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 1, blending: THREE.AdditiveBlending });
+      const material = new THREE.PointsMaterial({ size: 0.18, vertexColors: true, transparent: true, opacity: 1, blending: THREE.AdditiveBlending });
       const firework = new THREE.Points(geometry, material);
       firework.userData.velocities = velocities;
       firework.userData.life = 1;
@@ -182,7 +240,7 @@ const ValentinePage: React.FC = () => {
 
     const createBlastWave = (position: THREE.Vector3) => {
       const ringGeometry = new THREE.TorusGeometry(0.1, 0.05, 16, 32);
-      const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xff1493, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+      const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xff69b4, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
       const ring = new THREE.Mesh(ringGeometry, ringMaterial);
       ring.position.copy(position);
       ring.userData.life = 1;
@@ -194,11 +252,11 @@ const ValentinePage: React.FC = () => {
     const createHeartExplosion = (position: THREE.Vector3) => {
       const miniHeartCount = 12;
       for (let i = 0; i < miniHeartCount; i++) {
+        const hColor = heartColors[Math.floor(Math.random() * heartColors.length)];
         const miniHeartGeo = new THREE.ExtrudeGeometry(heartShape, { depth: 0.1, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.02, bevelThickness: 0.02 });
         miniHeartGeo.center();
         const miniHeartMat = new THREE.MeshPhongMaterial({
-          color: Math.random() > 0.5 ? 0xff1493 : 0xff69b4,
-          transparent: true, opacity: 0.9, emissive: 0xff69b4, emissiveIntensity: 0.5,
+          color: hColor, transparent: true, opacity: 0.9, emissive: hColor, emissiveIntensity: 0.5,
         });
         const miniHeart = new THREE.Mesh(miniHeartGeo, miniHeartMat);
         miniHeart.position.copy(position);
@@ -219,11 +277,11 @@ const ValentinePage: React.FC = () => {
 
     // Random explosions
     const triggerRandomExplosion = () => {
-      const position = new THREE.Vector3((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8);
+      const position = new THREE.Vector3((Math.random() - 0.5) * 15, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 8);
       const effects = [createConfetti, createFirework, createBlastWave, createHeartExplosion];
       effects[Math.floor(Math.random() * effects.length)](position);
     };
-    const explosionInterval = setInterval(() => { if (Math.random() > 0.3) triggerRandomExplosion(); }, 800);
+    const explosionInterval = setInterval(() => { if (Math.random() > 0.4) triggerRandomExplosion(); }, 800);
 
     let time = 0;
     let animationId: number;
@@ -236,22 +294,27 @@ const ValentinePage: React.FC = () => {
         heart.rotation.y += heart.userData.rotationSpeed.y;
         heart.rotation.z += heart.userData.rotationSpeed.z;
         heart.position.y += Math.sin(time * heart.userData.floatSpeed + heart.userData.floatOffset) * 0.01;
+
+        // Pulse Effect
+        const pulse = 1 + Math.sin(time * heart.userData.pulseSpeed + heart.userData.floatOffset) * 0.15;
+        const currentScale = heart.userData.baseScale * pulse;
+        heart.scale.set(currentScale, currentScale, currentScale);
       });
 
       centralHeart.rotation.y = time * 0.5;
       centralHeart.rotation.z = Math.sin(time) * 0.1;
       centralHeart.position.y = Math.sin(time * 2) * 0.3;
-      const scale = 1.2 + Math.sin(time * 3) * 0.1;
-      centralHeart.scale.set(scale, scale, scale);
+      const cScale = 1.4 + Math.sin(time * 3) * 0.15;
+      centralHeart.scale.set(cScale, cScale, cScale);
 
       const pPositions = particles.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount; i++) {
         pPositions[i * 3] += particleVelocities[i].x;
         pPositions[i * 3 + 1] += particleVelocities[i].y;
         pPositions[i * 3 + 2] += particleVelocities[i].z;
-        if (pPositions[i * 3 + 1] > 15) pPositions[i * 3 + 1] = -15;
-        if (Math.abs(pPositions[i * 3]) > 15) pPositions[i * 3] = (Math.random() - 0.5) * 30;
-        if (Math.abs(pPositions[i * 3 + 2]) > 15) pPositions[i * 3 + 2] = (Math.random() - 0.5) * 30;
+        if (pPositions[i * 3 + 1] > 20) pPositions[i * 3 + 1] = -20;
+        if (Math.abs(pPositions[i * 3]) > 20) pPositions[i * 3] = (Math.random() - 0.5) * 40;
+        if (Math.abs(pPositions[i * 3 + 2]) > 20) pPositions[i * 3 + 2] = (Math.random() - 0.5) * 40;
       }
       particles.geometry.attributes.position.needsUpdate = true;
 
@@ -288,8 +351,8 @@ const ValentinePage: React.FC = () => {
         const ring = blastRings[i];
         ring.userData.life -= 0.02;
         const progress = 1 - ring.userData.life;
-        const cs = progress * ring.userData.maxScale;
-        ring.scale.set(cs, cs, cs);
+        const scaleVal = progress * ring.userData.maxScale;
+        ring.scale.set(scaleVal, scaleVal, scaleVal);
         (ring.material as THREE.MeshBasicMaterial).opacity = ring.userData.life * 0.8;
         if (ring.userData.life <= 0) { scene.remove(ring); ring.geometry.dispose(); (ring.material as THREE.Material).dispose(); blastRings.splice(i, 1); }
       }
@@ -327,7 +390,7 @@ const ValentinePage: React.FC = () => {
     };
     animate();
 
-    setTimeout(() => setShowMessage(true), 2000);
+    setTimeout(() => setShowMessage(true), 1500);
 
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -359,20 +422,21 @@ const ValentinePage: React.FC = () => {
       "I get butterflies every time you're near! 💓",
       "I wish I could tell you how much you mean to me 🌹",
     ];
+    // Custom romantic pop-up could be here, but using alert for now as requested
     alert(messages[Math.floor(Math.random() * messages.length)]);
 
     if (effectsRef.current) {
       const { createFirework, createConfetti, createBlastWave, createHeartExplosion, addScreenShake } = effectsRef.current;
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         setTimeout(() => {
-          const randomPos = new THREE.Vector3((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6);
+          const randomPos = new THREE.Vector3((Math.random() - 0.5) * 12, (Math.random() - 0.5) * 8, (Math.random() - 0.5) * 8);
           createFirework(randomPos);
-          createConfetti(randomPos, 80);
+          createConfetti(randomPos, 100);
           createBlastWave(randomPos);
           createHeartExplosion(randomPos);
-        }, i * 100);
+        }, i * 150);
       }
-      addScreenShake(0.3);
+      addScreenShake(0.4);
     }
   };
 
@@ -384,12 +448,15 @@ const ValentinePage: React.FC = () => {
       {/* Three.js canvas */}
       <div ref={mountRef} className="absolute inset-0 z-0" />
 
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-background/40 pointer-events-none z-10" />
+
       {/* Overlay content */}
       {showMessage && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-4">
           {/* Photo */}
-          <div className="animate-fade-in-up mb-8 pointer-events-auto">
-            <div className="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-valentine-rose animate-pulse-glow shadow-[0_0_40px_hsl(var(--valentine-crimson)/0.5)]">
+          <div className="animate-fade-in-up mb-6 pointer-events-auto">
+            <div className="w-40 h-40 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-valentine-rose animate-pulse-glow shadow-[0_0_50px_rgba(255,20,147,0.6)]">
               <img
                 src={valentinePhoto}
                 alt="My Crush"
@@ -404,24 +471,44 @@ const ValentinePage: React.FC = () => {
           </h1>
 
           {/* Subtitle */}
-          <p className="font-body text-base md:text-xl text-valentine-rose mt-3 tracking-widest animate-fade-in-up-delay-2 select-none text-center">
+          <p className="font-body text-xl md:text-2xl text-valentine-rose mt-4 tracking-wide animate-fade-in-up-delay-2 select-none text-center italic opacity-90">
             Every time I see you, my world lights up ♡
           </p>
 
           {/* Button */}
           <button
-            onClick={handleButtonClick}
-            className="mt-6 px-8 py-3 rounded-full bg-primary text-primary-foreground font-body text-lg tracking-wide
-              shadow-[0_10px_30px_hsl(var(--valentine-pink)/0.4),0_0_20px_hsl(var(--valentine-rose)/0.3)]
-              hover:shadow-[0_15px_40px_hsl(var(--valentine-pink)/0.6),0_0_30px_hsl(var(--valentine-rose)/0.5)]
+            onClick={() => {
+              handleButtonClick();
+              if (!hasInteracted) startMusic();
+            }}
+            className="mt-12 px-10 py-4 rounded-full bg-primary text-primary-foreground font-body text-xl tracking-wide
+              shadow-[0_10px_40px_rgba(255,105,180,0.5),0_0_20px_rgba(255,20,147,0.3)]
+              hover:shadow-[0_15px_50px_rgba(255,105,180,0.7),0_0_30px_rgba(255,20,147,0.5)]
               hover:-translate-y-1 hover:scale-105
               transition-all duration-300 ease-out
               pointer-events-auto animate-fade-in-up-delay-3 animate-float"
           >
-            💌 Click if you feel it too
+            💌 Click for a Surprise
           </button>
         </div>
       )}
+
+      {/* Start Overlay for Music */}
+      {!hasInteracted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-md transition-opacity duration-1000">
+          <button
+            onClick={startMusic}
+            className="px-12 py-5 rounded-full bg-primary text-primary-foreground font-display text-3xl tracking-widest
+              shadow-[0_0_60px_rgba(255,105,180,0.7)] hover:scale-110 transition-all duration-500 animate-pulse
+              pointer-events-auto"
+          >
+            Enter Our World 💖
+          </button>
+        </div>
+      )}
+
+      {/* Background Music (YouTube) */}
+      <div id="youtube-player" className="fixed -top-[1000px] -left-[1000px] opacity-0 pointer-events-none"></div>
     </div>
   );
 };
