@@ -6,41 +6,43 @@
 
 @layer base {
   :root {
-    --background: 280 40% 5%;
-    --foreground: 340 100% 95%;
+    --background: 345 30% 4%;
+    --foreground: 20 60% 95%;
 
-    --card: 280 30% 10%;
-    --card-foreground: 340 100% 95%;
+    --card: 345 25% 8%;
+    --card-foreground: 20 60% 95%;
 
-    --popover: 280 30% 10%;
-    --popover-foreground: 340 100% 95%;
+    --popover: 345 25% 8%;
+    --popover-foreground: 20 60% 95%;
 
-    --primary: 330 100% 50%;
+    --primary: 350 80% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 340 80% 60%;
+    --secondary: 15 70% 55%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 280 20% 15%;
-    --muted-foreground: 340 40% 70%;
+    --muted: 345 20% 12%;
+    --muted-foreground: 15 30% 65%;
 
-    --accent: 330 100% 65%;
+    --accent: 25 85% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 330 40% 25%;
-    --input: 330 40% 25%;
-    --ring: 330 100% 50%;
+    --border: 350 30% 20%;
+    --input: 350 30% 20%;
+    --ring: 350 80% 55%;
 
     --radius: 0.75rem;
 
-    --valentine-pink: 330 100% 50%;
-    --valentine-rose: 340 80% 60%;
-    --valentine-blush: 350 100% 88%;
-    --valentine-deep: 280 40% 5%;
-    --valentine-glow: 330 100% 65%;
+    --valentine-pink: 350 80% 55%;
+    --valentine-rose: 15 70% 55%;
+    --valentine-blush: 20 100% 90%;
+    --valentine-deep: 345 30% 4%;
+    --valentine-glow: 25 85% 60%;
+    --valentine-crimson: 345 90% 45%;
+    --valentine-gold: 38 90% 60%;
 
     --font-display: 'Cormorant Garamond', serif;
     --font-body: 'Crimson Pro', serif;
@@ -76,8 +78,9 @@
   }
 
   .valentine-text-glow {
-    text-shadow: 0 0 20px hsl(var(--valentine-pink) / 0.5),
-                 0 0 40px hsl(var(--valentine-rose) / 0.3);
+    text-shadow: 0 0 20px hsl(var(--valentine-crimson) / 0.6),
+                 0 0 40px hsl(var(--valentine-rose) / 0.4),
+                 0 0 60px hsl(var(--valentine-gold) / 0.2);
   }
 
   @keyframes fadeInUp {
