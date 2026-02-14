@@ -57,6 +57,8 @@ export default {
           blush: "hsl(var(--valentine-blush))",
           deep: "hsl(var(--valentine-deep))",
           glow: "hsl(var(--valentine-glow))",
+          crimson: "hsl(var(--valentine-crimson))",
+          gold: "hsl(var(--valentine-gold))",
         },
       },
       borderRadius: {

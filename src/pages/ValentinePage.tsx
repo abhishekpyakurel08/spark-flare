@@ -353,11 +353,11 @@ const ValentinePage: React.FC = () => {
 
   const handleButtonClick = () => {
     const messages = [
-      "You make me nervous in the best way! ✨",
+      "You make my heart skip a beat! ✨",
       "I can't stop thinking about you! 💫",
-      "Your smile makes my day! 😊",
-      "I get butterflies every time I see you! 💓",
-      "Would you go out with me? 🌟",
+      "Your smile is my favorite thing in the world! 😊",
+      "I get butterflies every time you're near! 💓",
+      "I wish I could tell you how much you mean to me 🌹",
     ];
     alert(messages[Math.floor(Math.random() * messages.length)]);
 
@@ -400,12 +400,12 @@ const ValentinePage: React.FC = () => {
 
           {/* Title */}
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-light tracking-wide text-foreground valentine-text-glow animate-fade-in-up-delay select-none">
-          I Like You
-        </h1>
+            You Stole My Heart
+          </h1>
 
           {/* Subtitle */}
           <p className="font-body text-lg md:text-2xl text-valentine-rose mt-4 tracking-widest animate-fade-in-up-delay-2 select-none">
-            You give me butterflies ♡
+            Every time I see you, my world lights up ♡
           </p>
 
           {/* Button */}
@@ -418,7 +418,7 @@ const ValentinePage: React.FC = () => {
               transition-all duration-300 ease-out
               pointer-events-auto animate-fade-in-up-delay-3 animate-float"
           >
-            Click if you feel it too
+            💌 Click if you feel it too
           </button>
         </div>
       )}
