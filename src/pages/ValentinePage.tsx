@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import valentinePhoto from '@/assets/valentine-photo.png';
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -422,8 +423,18 @@ const ValentinePage: React.FC = () => {
       "I get butterflies every time you're near! 💓",
       "I wish I could tell you how much you mean to me 🌹",
     ];
-    // Custom romantic pop-up could be here, but using alert for now as requested
-    alert(messages[Math.floor(Math.random() * messages.length)]);
+
+    toast(messages[Math.floor(Math.random() * messages.length)], {
+      position: "top-center",
+      duration: 3000,
+      style: {
+        background: "rgba(255, 105, 180, 0.9)",
+        color: "white",
+        border: "none",
+        fontSize: "1.2rem",
+        fontFamily: "serif",
+      }
+    });
 
     if (effectsRef.current) {
       const { createFirework, createConfetti, createBlastWave, createHeartExplosion, addScreenShake } = effectsRef.current;
